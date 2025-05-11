@@ -11,4 +11,3 @@ jobs:
           python-version: '3.12'
       - run: pip install pygame pytest
       - run: pytest -q
-      
