@@ -37,36 +37,39 @@ def spawn_piece() -> Piece:
     col = COLS // 2
     return Piece(shape, col, 0)
 
-# ---- 3. Pygame 初期化 ------------------------------------------------
-pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Python Tetris")
-clock = pygame.time.Clock()
+def main():
+    # ---- 3. Pygame 初期化 ------------------------------------------------
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Python Tetris")
+    clock = pygame.time.Clock()
+    current = spawn_piece()
+    fall_time = 0
 
-current = spawn_piece()
-fall_time = 0
+    # ---- 4. メインループ ------------------------------------------------
+    while True:
+        dt = clock.tick(FPS)  # フレーム時間を取得
+        fall_time += dt
 
-# ---- 4. メインループ ------------------------------------------------
-while True:
-    dt = clock.tick(FPS)  # フレーム時間を取得
-    fall_time += dt
+        # --- 入力処理 ---
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    current.rotate()
 
-    # --- 入力処理 ---
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                current.rotate()
+        # --- 自動落下 ---
+        if fall_time >= FALL_MS:
+            current.row += 1
+            fall_time = 0
 
-    # --- 自動落下 ---
-    if fall_time >= FALL_MS:
-        current.row += 1
-        fall_time = 0
+        # --- 描画 ---
+        screen.fill("black")
+        draw_grid(screen)
+        draw_piece(screen, current)
+        pygame.display.flip()
 
-    # --- 描画 ---
-    screen.fill("black")
-    draw_grid(screen)
-    draw_piece(screen, current)
-    pygame.display.flip()
+if __name__ == "__main__":
+    main()
