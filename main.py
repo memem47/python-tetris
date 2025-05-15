@@ -8,6 +8,8 @@ WIDTH, HEIGHT = COLS * GRID, ROWS * GRID
 FPS = 60
 FALL_MS = 500  # 落下間隔（ミリ秒）
 
+board = [[None] * COLS for _ in range(ROWS)]  # 
+
 # ---- 2. ヘルパ関数 ----------------------------------------------
 def draw_grid(surface):
     """グリッドを描画"""
@@ -37,6 +39,40 @@ def spawn_piece() -> Piece:
     col = COLS // 2
     return Piece(shape, col, 0)
 
+def is_valid(piece, dx=0, dy=0):
+    """ピースが移動可能かチェック"""
+    for col, row in piece.coordinates():
+        nx, ny = col + dx, row + dy
+        # 1) wall, floor
+        if nx < 0 or nx >= COLS or ny >= ROWS:
+            return False
+        # 2) existing blocks
+        if board[ny][nx]:
+            return False
+    return True
+
+def lock_piece(piece):
+    """ピースをロックしてボードに追加"""
+    for col, row in piece.coordinates():
+        board[row][col] = piece.shape
+    
+def draw_board(surface):
+    color_map = {
+        'I': "cyan",
+        'O': "yellow",
+        'T': "purple",
+        'S': "lime",
+        'Z': "red",
+        'L': "orange",
+        'J': "blue"
+    }
+    for y, line in enumerate(board):
+        for x, cell in enumerate(line):
+            if cell:
+                rect = pygame.Rect(x * GRID, y * GRID, GRID, GRID)
+                pygame.draw.rect(surface, color_map[cell], rect)
+                pygame.draw.rect(surface, "black", rect, 1)
+
 def main():
     # ---- 3. Pygame 初期化 ------------------------------------------------
     pygame.init()
@@ -62,12 +98,20 @@ def main():
 
         # --- 自動落下 ---
         if fall_time >= FALL_MS:
-            current.row += 1
+            if is_valid(current,0,1):
+                current.row += 1
+            else:
+                lock_piece(current)
+                current = spawn_piece()
+                if not is_valid(current):
+                    running = False
+                    
             fall_time = 0
 
         # --- 描画 ---
         screen.fill("black")
         draw_grid(screen)
+        draw_board(screen)
         draw_piece(screen, current)
         pygame.display.flip()
 
