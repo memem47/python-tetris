@@ -1,3 +1,5 @@
+import sys, pathlib, os
+sys.path.append(os.fspath(pathlib.Path(__file__).resolve().parents[1]))
 from piece import Piece
 import main
 
