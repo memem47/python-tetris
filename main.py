@@ -13,7 +13,6 @@ board = [[None] * COLS for _ in range(ROWS)]  #
 score = 0
 pygame.font.init()
 font = pygame.font.SysFont(None, 28)
-running = True
 
 # ---- 2. ヘルパ関数 ----------------------------------------------
 def draw_grid(surface):
@@ -82,21 +81,19 @@ def check_full_lines():
     """
     完全に埋まった行番号リストを返す（下から上）
     """
-    full = []
-    for y, line in enumerate(board):
-        if all(cell for cell in line):
-            full.append(y)
-    return full
+    full = [y for y, line in enumerate(board) if all(line)]
+    return sorted(full, reverse=True)
 
 def clear_lines(lines):
     global score
-    for y in sorted(lines):
+    for y in sorted(lines, reverse=True):
         del board[y]
         board.insert(0, [None] * COLS)
     score += 100 * len(lines)  # スコア加算
 
 def main():
     # ---- 3. Pygame 初期化 ------------------------------------------------
+    running = True
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Python Tetris")
@@ -138,9 +135,9 @@ def main():
         draw_grid(screen)
         draw_board(screen)
         draw_piece(screen, current)
-        pygame.display.flip()
         score_surf =font.render(f"Score: {score}", True, "white")
         screen.blit(score_surf, (10, 5))
+        pygame.display.flip()
 
     # --- ゲームオーバー ---
     game_over_surf = font.render("Game Over", True, "red")

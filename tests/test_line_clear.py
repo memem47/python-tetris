@@ -9,9 +9,10 @@ def setup_function():
 def test_line_is_cleared():
     # 最下行を埋める
     main.board[-1] = ['I'] * main.COLS
+    main.board[-2] = ['I'] * main.COLS
     lines =main.check_full_lines()
-    assert lines == [main.ROWS - 1]
-
+    assert lines == [main.ROWS - 1, main.ROWS - 2]
     main.clear_lines(lines)
-    assert all(cell is None for cell in main.board[0]) # 先頭行が空
-    assert main.score == 100
+    assert all(cell is None for cell in main.board[0])
+    assert all(cell is None for cell in main.board[1])
+    assert main.score == 200
