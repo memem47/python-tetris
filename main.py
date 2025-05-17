@@ -111,9 +111,19 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
                     current.rotate()
-
+                    if not is_valid(current):
+                        current.rotate()
+                        current.rotate()
+                        current.rotate() # 3回戻す
+                elif event.key == pygame.K_LEFT and is_valid(current, -1, 0):
+                    current.col -= 1
+                elif event.key == pygame.K_RIGHT and is_valid(current, 1, 0):
+                    current.col += 1
+                elif event.key == pygame.K_DOWN and is_valid(current, 0, 1):
+                    current.row += 1
         # --- 自動落下 ---
         if fall_time >= FALL_MS:
             if is_valid(current,0,1):
