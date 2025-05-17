@@ -13,6 +13,7 @@ board = [[None] * COLS for _ in range(ROWS)]  #
 score = 0
 pygame.font.init()
 font = pygame.font.SysFont(None, 28)
+running = True
 
 # ---- 2. ヘルパ関数 ----------------------------------------------
 def draw_grid(surface):
@@ -104,7 +105,7 @@ def main():
     fall_time = 0
 
     # ---- 4. メインループ ------------------------------------------------
-    while True:
+    while running:
         dt = clock.tick(FPS)  # フレーム時間を取得
         fall_time += dt
 
@@ -128,6 +129,7 @@ def main():
                 current = spawn_piece()
                 if not is_valid(current):
                     running = False
+                    break
                     
             fall_time = 0
 
@@ -139,6 +141,13 @@ def main():
         pygame.display.flip()
         score_surf =font.render(f"Score: {score}", True, "white")
         screen.blit(score_surf, (10, 5))
+
+    # --- ゲームオーバー ---
+    game_over_surf = font.render("Game Over", True, "red")
+    rect = game_over_surf.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    screen.blit(game_over_surf, rect)
+    pygame.display.flip()
+    pygame.time.wait(3000) # 3 秒表示
 
 if __name__ == "__main__":
     main()
