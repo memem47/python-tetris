@@ -10,6 +10,10 @@ FALL_MS = 500  # 落下間隔（ミリ秒）
 
 board = [[None] * COLS for _ in range(ROWS)]  # 
 
+score = 0
+pygame.font.init()
+font = pygame.font.SysFont(None, 28)
+
 # ---- 2. ヘルパ関数 ----------------------------------------------
 def draw_grid(surface):
     """グリッドを描画"""
@@ -73,6 +77,23 @@ def draw_board(surface):
                 pygame.draw.rect(surface, color_map[cell], rect)
                 pygame.draw.rect(surface, "black", rect, 1)
 
+def check_full_lines():
+    """
+    完全に埋まった行番号リストを返す（下から上）
+    """
+    full = []
+    for y, line in enumerate(board):
+        if all(cell for cell in line):
+            full.append(y)
+    return full
+
+def clear_lines(lines):
+    global score
+    for y in sorted(lines):
+        del board[y]
+        board.insert(0, [None] * COLS)
+    score += 100 * len(lines)  # スコア加算
+
 def main():
     # ---- 3. Pygame 初期化 ------------------------------------------------
     pygame.init()
@@ -92,8 +113,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                     current.rotate()
 
         # --- 自動落下 ---
@@ -102,6 +122,9 @@ def main():
                 current.row += 1
             else:
                 lock_piece(current)
+                lines = check_full_lines()
+                if lines:
+                    clear_lines(lines)
                 current = spawn_piece()
                 if not is_valid(current):
                     running = False
@@ -114,6 +137,8 @@ def main():
         draw_board(screen)
         draw_piece(screen, current)
         pygame.display.flip()
+        score_surf =font.render(f"Score: {score}", True, "white")
+        screen.blit(score_surf, (10, 5))
 
 if __name__ == "__main__":
     main()
